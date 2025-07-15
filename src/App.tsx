@@ -73,7 +73,7 @@ function Playlist() {
   const handleAddTrack = async () => {
     try {
       const selected = await open({
-        multiple: false,
+        multiple: true,
         filters: [
           {
             name: "Audio",
@@ -81,9 +81,16 @@ function Playlist() {
           },
         ],
       });
-      if (typeof selected === "string") {
-        await invoke("read_file", { pathStr: selected });
-        fetchTracks(); // Refetch tracks after adding
+
+      if (selected !== null) {
+        // Handle both array of paths or single path
+        const paths = Array.isArray(selected) ? selected : [selected];
+
+        for (const path of paths) {
+          await invoke("read_file", { pathStr: path });
+        }
+
+        fetchTracks(); // Refetch tracks after adding all files
       }
     } catch (error) {
       console.error("Error adding track:", error);

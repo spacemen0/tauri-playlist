@@ -3864,23 +3864,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sqlite-sqlx"
-version = "0.0.0"
-dependencies = [
- "futures",
- "lofty",
- "serde",
- "serde_json",
- "sqlx",
- "tauri",
- "tauri-build",
- "tauri-plugin-dialog",
- "tauri-plugin-opener",
- "tauri-plugin-shell",
- "tokio",
-]
-
-[[package]]
 name = "sqlx"
 version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4362,6 +4345,23 @@ dependencies = [
  "syn 2.0.90",
  "tauri-codegen",
  "tauri-utils",
+]
+
+[[package]]
+name = "tauri-playlist"
+version = "0.0.0"
+dependencies = [
+ "futures",
+ "lofty",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-dialog",
+ "tauri-plugin-opener",
+ "tauri-plugin-shell",
+ "tokio",
 ]
 
 [[package]]
