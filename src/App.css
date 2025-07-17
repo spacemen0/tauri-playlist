@@ -12,74 +12,137 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+  /* Color Variables */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2a2a2a;
+  --bg-tertiary: #333;
+  --bg-hover: #3a3a3a;
+
+  --text-primary: #f6f6f6;
+
+  --button-primary: #e78534;
+  --button-light: #975508;
+  --button-white: #ffffff;
+  --button-hover: #d67a2c;
 }
 
 .container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  width: 100vw;
-  padding: 0;
-  margin: 0;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
 }
 
 .playlist-container {
   width: 100%;
-  max-width: 600px;
+  max-width: 1200px;
   background-color: #2a2a2a;
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
-
-.track-list {
+.add-button {
   margin-bottom: 20px;
+  padding: 10px 20px;
+  background-color: var(--button-primary);
+  color: var(--text-primary);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-.track {
+.add-button:hover {
+  background-color: var(--button-light);
+}
+
+.table-container {
+  width: 100%;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
+  justify-content: center;
+}
+
+.track-table {
+  align-self: center;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  display: block;
+}
+
+.track-table th,
+.track-table td {
+  padding: 12px 15px;
+  text-align: left;
   border-bottom: 1px solid #333;
+  white-space: nowrap;
 }
 
-.track:last-child {
-  border-bottom: none;
+.track-table th {
+  background-color: #333;
+  font-weight: bold;
 }
 
-.track-title {
-  font-size: 1.1em;
+.track-table tbody tr:hover {
+  background-color: #3a3a3a;
+}
+
+.play-button,
+.delete-button {
+  padding: 8px 12px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9em;
 }
 
 .play-button {
-  padding: 8px 16px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 0.9em;
+  background-color: var(--button-primary);
+  margin-right: 5px;
 }
 
 .play-button:hover {
-  background-color: #0056b3;
+  background-color: var(--button-light);
 }
 
 .delete-button {
-  padding: 8px 16px;
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 0.9em;
-  margin-left: 10px;
+  background-color: var(--button-primary);
 }
 
 .delete-button:hover {
-  background-color: #c82333;
+  background-color: var(--button-light);
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.page-item {
+  margin: 5px;
+  padding: 8px 16px;
+  background-color: var(--button-white);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.page-item.active {
+  background-color: var(--button-light);
+}
+
+.page-item:hover {
+  background-color: var(--button-hover);
 }
 
 .now-playing {
@@ -89,4 +152,79 @@
   border-radius: 5px;
   text-align: center;
   font-size: 1.2em;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .playlist-container {
+    padding: 15px;
+  }
+
+  .track-table th,
+  .track-table td {
+    padding: 10px;
+  }
+
+  .play-button,
+  .delete-button {
+    padding: 6px 10px;
+    font-size: 0.8em;
+  }
+
+  .page-item {
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 10px;
+  }
+
+  .add-button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .track-table thead {
+    display: none;
+  }
+
+  .track-table,
+  .track-table tbody,
+  .track-table tr,
+  .track-table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .track-table tr {
+    margin-bottom: 15px;
+    border: 1px solid #333;
+    border-radius: 5px;
+  }
+
+  .track-table td {
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+    border-bottom: none;
+  }
+
+  .track-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    width: calc(50% - 20px);
+    padding-right: 10px;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: bold;
+  }
+
+  .track-table td:last-child {
+    text-align: center;
+    padding: 10px;
+  }
 }

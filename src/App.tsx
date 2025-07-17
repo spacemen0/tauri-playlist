@@ -23,19 +23,21 @@ interface TrackProps {
 // Represents a single track in the playlist
 const Track: React.FC<TrackProps> = ({ track, onPlay, onDelete }) => {
   return (
-    <div className="track">
-      <span className="track-title">{track.title}</span>
-      <span className="track-artist">{track.artist}</span>
-      <span className="track-album">{track.album}</span>
-      <span className="track-genre">{track.genre}</span>
-      <span className="track-length">{track.length}s</span>
-      <button className="play-button" onClick={() => onPlay(track)}>
-        Play
-      </button>
-      <button className="delete-button" onClick={() => onDelete(track.id)}>
-        Delete
-      </button>
-    </div>
+    <tr>
+      <td data-label="Title">{track.title}</td>
+      <td data-label="Artist">{track.artist}</td>
+      <td data-label="Album">{track.album}</td>
+      <td data-label="Genre">{track.genre}</td>
+      <td data-label="Length">{track.length}s</td>
+      <td data-label="Actions">
+        <button className="play-button" onClick={() => onPlay(track)}>
+          Play
+        </button>
+        <button className="delete-button" onClick={() => onDelete(track.id)}>
+          Delete
+        </button>
+      </td>
+    </tr>
   );
 };
 
@@ -43,6 +45,8 @@ const Track: React.FC<TrackProps> = ({ track, onPlay, onDelete }) => {
 function Playlist() {
   const [tracks, setTracks] = useState<TrackData[]>([]);
   const [currentTrack, setCurrentTrack] = useState<TrackData | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const tracksPerPage = 10;
 
   useEffect(() => {
     fetchTracks();
@@ -97,19 +101,55 @@ function Playlist() {
     }
   };
 
+  // Pagination logic
+  const indexOfLastTrack = currentPage * tracksPerPage;
+  const indexOfFirstTrack = indexOfLastTrack - tracksPerPage;
+  const currentTracks = tracks.slice(indexOfFirstTrack, indexOfLastTrack);
+  const totalPages = Math.ceil(tracks.length / tracksPerPage);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
   return (
     <div className="playlist-container">
-      <button className="add-button" onClick={handleAddTrack}>
-        Add Track
-      </button>
-      <div className="track-list">
-        {tracks.map((track) => (
-          <Track
-            key={track.id}
-            track={track}
-            onPlay={handlePlayTrack}
-            onDelete={handleDeleteTrack}
-          />
+      <div className="controls">
+        <button className="add-button" onClick={handleAddTrack}>
+          Add Track{" "}
+        </button>
+      </div>
+
+      <div className="table-container">
+        <table className="track-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Artist</th>
+              <th>Album</th>
+              <th>Genre</th>
+              <th>Length</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentTracks.map((track) => (
+              <Track
+                key={track.id}
+                track={track}
+                onPlay={handlePlayTrack}
+                onDelete={handleDeleteTrack}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="pagination">
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
+          <button
+            key={number}
+            onClick={() => paginate(number)}
+            className={`page-item ${currentPage === number ? "active" : ""}`}
+          >
+            {number}
+          </button>
         ))}
       </div>
       {currentTrack && (
