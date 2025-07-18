@@ -1,3 +1,4 @@
+@import "tailwindcss";
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
@@ -137,7 +138,7 @@
 
 .page-item {
   margin: 5px;
-  padding: 8px 16px;
+  padding: 8px;
   background-color: var(--button-white);
   color: var(--bg-primary);
   border: none;
@@ -151,7 +152,7 @@
 }
 
 .page-item:hover {
-  background-color: var(--button-hover);
+  background-color: var(--button-light);
 }
 
 .track-info {

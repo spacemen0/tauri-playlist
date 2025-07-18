@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./App.css";
+
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 
@@ -234,6 +234,97 @@ function Playlist() {
     }
   };
 
+  const [jumpPage, setJumpPage] = useState("");
+  const handleJump = () => {
+    const pageNum = parseInt(jumpPage, 10);
+    if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
+      paginate(pageNum);
+      setJumpPage("");
+    }
+  };
+  const renderPages = () => {
+    const pages = [];
+
+    if (totalPages <= 10) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(
+          <button
+            key={i}
+            onClick={() => paginate(i)}
+            className={`page-item ${currentPage === i ? "active" : ""}`}
+          >
+            {i}
+          </button>
+        );
+      }
+    } else {
+      pages.push(
+        <button
+          key={1}
+          onClick={() => paginate(1)}
+          className={`page-item ${currentPage === 1 ? "active" : ""}`}
+        >
+          1
+        </button>
+      );
+
+      if (currentPage > 4) {
+        pages.push(
+          <span key="start-ellipsis" className="ellipsis">
+            ...
+          </span>
+        );
+      }
+
+      const startPage = Math.max(2, currentPage - 2);
+      const endPage = Math.min(totalPages - 1, currentPage + 2);
+
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(
+          <button
+            key={i}
+            onClick={() => paginate(i)}
+            className={`page-item ${currentPage === i ? "active" : ""}`}
+          >
+            {i}
+          </button>
+        );
+      }
+
+      if (currentPage < totalPages - 3) {
+        pages.push(
+          <span key="end-ellipsis" className="ellipsis">
+            ...
+          </span>
+        );
+      }
+
+      pages.push(
+        <button
+          key={totalPages}
+          onClick={() => paginate(totalPages)}
+          className={`page-item ${currentPage === totalPages ? "active" : ""}`}
+        >
+          {totalPages}
+        </button>
+      );
+    }
+
+    return pages;
+  };
+
+  const handlePlayRandomTrack = () => {
+    if (tracks.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * tracks.length);
+    const randomTrack = tracks[randomIndex];
+    setCurrentTrack(randomTrack);
+    if (audioRef.current) {
+      audioRef.current.src = convertFileSrc(randomTrack.path);
+      audioRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
   return (
     <div className="playlist-container">
       <div className="controls">
@@ -242,6 +333,9 @@ function Playlist() {
         </button>
         <button className="add-button" onClick={handleAddFolder}>
           Add Folder{" "}
+        </button>
+        <button className="add-button" onClick={handlePlayRandomTrack}>
+          Play Random Track{" "}
         </button>
         <div className="auto-play-toggle">
           <span>Auto Play Next</span>
@@ -277,20 +371,28 @@ function Playlist() {
         </table>
       </div>
       <div className="pagination">
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
-          <button
-            key={number}
-            onClick={() => paginate(number)}
-            className={`page-item ${currentPage === number ? "active" : ""}`}
-          >
-            {number}
-          </button>
-        ))}
+        {renderPages()}
+        <input
+          min="1"
+          max={totalPages}
+          value={jumpPage}
+          onChange={(e) => setJumpPage(e.target.value)}
+          placeholder="Page"
+          className="m-[5px] p-1 border rounded w-16 text-center bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#975508] focus:border-transparent"
+        />
+        <button
+          onClick={handleJump}
+          className=" m-[5px] px-2 rounded bg-[#e78534] text-black hover:bg-[#975508]"
+        >
+          Go
+        </button>
       </div>
       {currentTrack && (
         <div className="track-info">
           {" "}
-          <div className="now-playing">Now Playing: {currentTrack.title}</div>
+          <div className="now-playing">
+            Now Playing: {currentTrack.artist} - {currentTrack.title}
+          </div>
           <div className="audio-controls">
             {" "}
             <button className="play-pause-button" onClick={togglePlayPause}>
