@@ -20,7 +20,14 @@
     "security": {
       "capabilities": [
         "main-capability"
-      ]
+      ],
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self';",
+      "assetProtocol": {
+        "enable": true,
+        "scope": [
+          "E:\\Recordings\\**"
+        ]
+      }
     }
   },
   "bundle": {
