@@ -5,5 +5,5 @@ CREATE TABLE IF NOT EXISTS tracks (
 	album TEXT,
 	genre TEXT,
 	length INTEGER,
-	path TEXT NOT NULL
+	path TEXT NOT NULL UNIQUE
 );

@@ -154,7 +154,7 @@ async fn path_to_db(path_str: &str, db: &Db) -> Result<(), String> {
     let duration = properties.duration();
     let seconds = duration.as_secs();
     sqlx::query(
-        "INSERT INTO tracks (artist, title, album, genre, length, path) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+        "INSERT OR IGNORE INTO tracks (artist, title, album, genre, length, path) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
     )
     .bind(artist)
     .bind(title)
@@ -187,7 +187,9 @@ async fn read_folder(state: tauri::State<'_, AppState>, path_str: &str) -> Resul
 
     collect_audio_files(path, &audio_extensions, &mut audio_files)?;
     for file_path in audio_files {
-        path_to_db(&file_path, db).await?;
+        if let Err(e) = path_to_db(&file_path, db).await {
+            eprintln!("Failed to add file '{}': {}", file_path, e);
+        }
     }
 
     Ok(())
