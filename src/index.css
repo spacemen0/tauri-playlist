@@ -27,7 +27,7 @@
   --button-hover: #d67a2c;
 }
 
-.container {
+.main-container {
   display: flex;
   justify-content: center;
   align-items: center;

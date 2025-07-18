@@ -426,7 +426,7 @@ function Playlist() {
 
 function App() {
   return (
-    <main className="container">
+    <main className="main-container">
       <Playlist />
     </main>
   );
