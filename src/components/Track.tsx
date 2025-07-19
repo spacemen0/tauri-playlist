@@ -1,7 +1,5 @@
-
-import React from 'react';
-import { TrackData } from '../types';
-import { formatTime } from '../utils';
+import { TrackData } from "../types";
+import { formatTime } from "../utils";
 
 // Define the props for the Track component
 interface TrackProps {

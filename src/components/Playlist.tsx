@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { TrackData } from "../types";
@@ -58,7 +57,24 @@ function Playlist() {
   const handleDeleteTrack = async (id: number) => {
     try {
       await invoke("delete_track", { id });
-      fetchTracks(); // Refetch tracks after deletion
+      tracks.forEach((track, index) => {
+        if (track.id === id) {
+          if (currentTrack && currentTrack.id === id) {
+            setCurrentTrack(null);
+            setIsPlaying(false);
+          }
+          tracks.splice(index, 1);
+        }
+      });
+      setTracks([...tracks]);
+      if (
+        audioRef.current &&
+        audioRef.current.src === convertFileSrc(currentTrack?.path || "")
+      ) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+      }
+      console.log("Track deleted:", id);
     } catch (error) {
       console.error("Error deleting track:", error);
     }
