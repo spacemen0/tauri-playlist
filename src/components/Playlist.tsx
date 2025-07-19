@@ -3,18 +3,30 @@ import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { TrackData } from "../types";
-import Track from "./Track";
-import Switch from "./Switch";
 import AudioPlayer from "./AudioPlayer";
 import Pagination from "./Pagination";
 import { path } from "@tauri-apps/api";
+import Controls from "./Controls";
+import TrackList from "./TrackList";
 
 function Playlist() {
+  // State
   const [tracks, setTracks] = useState<TrackData[]>([]);
   const [currentTrack, setCurrentTrack] = useState<TrackData | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [autoPlay, setAutoPlay] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isSeeking, setIsSeeking] = useState(false);
+  const [jumpPage, setJumpPage] = useState("");
   const audioRef = useRef<HTMLAudioElement>(null);
+  const tracksPerPage = 10;
+
+  // Effects
+  useEffect(() => {
+    fetchTracks();
+  }, []);
 
   useEffect(() => {
     if (currentTrack && audioRef.current) {
@@ -25,13 +37,48 @@ function Playlist() {
     }
   }, [currentTrack]);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const tracksPerPage = 10;
-
   useEffect(() => {
-    fetchTracks();
-  }, []);
+    const audio = audioRef.current;
+    if (!audio) return;
 
+    const handleTimeUpdate = () => {
+      if (!isSeeking) {
+        setCurrentTime(audio.currentTime);
+      }
+    };
+
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration);
+    };
+
+    const handleEnded = () => {
+      if (
+        autoPlay &&
+        currentTrack &&
+        tracks.length > 0 &&
+        tracks.indexOf(currentTrack) < tracks.length - 1
+      ) {
+        const nextTrackIndex = tracks.indexOf(currentTrack) + 1;
+        setCurrentTrack(tracks[nextTrackIndex]);
+      } else {
+        setIsPlaying(false);
+        setCurrentTrack(null);
+        setCurrentTime(0);
+      }
+    };
+
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audio.addEventListener("ended", handleEnded);
+
+    return () => {
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.removeEventListener("ended", handleEnded);
+    };
+  }, [isSeeking, autoPlay, currentTrack, tracks]);
+
+  // Data Fetching
   const fetchTracks = async () => {
     try {
       const fetchedTracks = await invoke<TrackData[]>("get_tracks");
@@ -41,6 +88,7 @@ function Playlist() {
     }
   };
 
+  // Handlers
   const handlePlayTrack = (track: TrackData) => {
     setCurrentTrack(track);
   };
@@ -108,76 +156,6 @@ function Playlist() {
     }
   };
 
-  const indexOfLastTrack = currentPage * tracksPerPage;
-  const indexOfFirstTrack = indexOfLastTrack - tracksPerPage;
-  const currentTracks = tracks.slice(indexOfFirstTrack, indexOfLastTrack);
-  const totalPages = Math.ceil(tracks.length / tracksPerPage);
-
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [isSeeking, setIsSeeking] = useState(false);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleTimeUpdate = () => {
-      if (!isSeeking) {
-        setCurrentTime(audio.currentTime);
-      }
-    };
-
-    const handleLoadedMetadata = () => {
-      setDuration(audio.duration);
-    };
-
-    const handleEnded = () => {
-      if (
-        autoPlay &&
-        currentTrack &&
-        currentTracks.length > 0 &&
-        currentTracks.indexOf(currentTrack) < currentTracks.length - 1
-      ) {
-        const nextTrackIndex = currentTracks.indexOf(currentTrack) + 1;
-        setCurrentTrack(currentTracks[nextTrackIndex]);
-      } else {
-        setIsPlaying(false);
-        setCurrentTrack(null);
-        setCurrentTime(0);
-      }
-    };
-
-    audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-    audio.addEventListener("ended", handleEnded);
-
-    return () => {
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.removeEventListener("ended", handleEnded);
-    };
-  }, [isSeeking, autoPlay, currentTrack, currentTracks]);
-
-  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCurrentTime(parseFloat(e.target.value));
-  };
-
-  const handleSliderMouseUp = () => {
-    const audio = audioRef.current;
-    if (audio) {
-      audio.currentTime = currentTime;
-      audio.play();
-      setIsPlaying(true);
-    }
-    setIsSeeking(false);
-  };
-
-  const handleSliderMouseDown = () => {
-    setIsSeeking(true);
-  };
-
   const handleAddFolder = async () => {
     try {
       const selected = await open({
@@ -192,15 +170,6 @@ function Playlist() {
       }
     } catch (error) {
       console.error("Error adding folder:", error);
-    }
-  };
-
-  const [jumpPage, setJumpPage] = useState("");
-  const handleJump = () => {
-    const pageNum = parseInt(jumpPage, 10);
-    if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
-      paginate(pageNum);
-      setJumpPage("");
     }
   };
 
@@ -227,54 +196,55 @@ function Playlist() {
     }
   };
 
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCurrentTime(parseFloat(e.target.value));
+  };
+
+  const handleSliderMouseUp = () => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.currentTime = currentTime;
+      audio.play();
+      setIsPlaying(true);
+    }
+    setIsSeeking(false);
+  };
+
+  const handleSliderMouseDown = () => {
+    setIsSeeking(true);
+  };
+
+  const handleJump = () => {
+    const pageNum = parseInt(jumpPage, 10);
+    if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
+      paginate(pageNum);
+      setJumpPage("");
+    }
+  };
+
+  // Pagination
+  const indexOfLastTrack = currentPage * tracksPerPage;
+  const indexOfFirstTrack = indexOfLastTrack - tracksPerPage;
+  const currentTracks = tracks.slice(indexOfFirstTrack, indexOfLastTrack);
+  const totalPages = Math.ceil(tracks.length / tracksPerPage);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
   return (
     <div className="playlist-container">
-      <div className="controls">
-        <button className="add-button" onClick={handleAddTracks}>
-          Add Tracks
-        </button>
-        <button className="add-button" onClick={handleAddFolder}>
-          Add Folder
-        </button>
-        <button className="add-button" onClick={handlePlayRandomTrack}>
-          Play Random Track
-        </button>
-        <button className="add-button" onClick={handleOpenDataDir}>
-          Open Data Dir
-        </button>
-        <div className="auto-play-toggle">
-          <span>Auto Play Next</span>
-          <Switch
-            checked={autoPlay}
-            onChange={(checked) => setAutoPlay(checked)}
-          />
-        </div>
-      </div>
-
-      <div className="table-container">
-        <table className="track-table">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Artist</th>
-              <th>Album</th>
-              <th>Genre</th>
-              <th>Length</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentTracks.map((track) => (
-              <Track
-                key={track.id}
-                track={track}
-                onPlay={handlePlayTrack}
-                onDelete={handleDeleteTrack}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Controls
+        handleAddTracks={handleAddTracks}
+        handleAddFolder={handleAddFolder}
+        handlePlayRandomTrack={handlePlayRandomTrack}
+        handleOpenDataDir={handleOpenDataDir}
+        autoPlay={autoPlay}
+        setAutoPlay={setAutoPlay}
+      />
+      <TrackList
+        tracks={currentTracks}
+        onPlay={handlePlayTrack}
+        onDelete={handleDeleteTrack}
+      />
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
