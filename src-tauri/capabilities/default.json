@@ -7,6 +7,17 @@
     ],
     "permissions": [
         "dialog:allow-open",
-        "dialog:allow-save"
+        "dialog:allow-save",
+        "opener:default",
+        "core:path:default",
+        "shell:allow-open",
+        {
+            "identifier": "opener:default",
+            "allow": [
+                {
+                    "path": "$APPCONFIG/**"
+                }
+            ]
+        }
     ]
 }

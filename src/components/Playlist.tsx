@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
+import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { TrackData } from "../types";
 import Track from "./Track";
 import Switch from "./Switch";
 import AudioPlayer from "./AudioPlayer";
 import Pagination from "./Pagination";
+import { path } from "@tauri-apps/api";
 
 function Playlist() {
   const [tracks, setTracks] = useState<TrackData[]>([]);
@@ -214,6 +216,17 @@ function Playlist() {
     }
   };
 
+  const handleOpenDataDir = async () => {
+    try {
+      const dataFolder = await path.appConfigDir();
+      if (dataFolder) {
+        revealItemInDir(dataFolder);
+      }
+    } catch (error) {
+      console.error("Error opening data folder:", error);
+    }
+  };
+
   return (
     <div className="playlist-container">
       <div className="controls">
@@ -225,6 +238,9 @@ function Playlist() {
         </button>
         <button className="add-button" onClick={handlePlayRandomTrack}>
           Play Random Track
+        </button>
+        <button className="add-button" onClick={handleOpenDataDir}>
+          Open Data Dir
         </button>
         <div className="auto-play-toggle">
           <span>Auto Play Next</span>
