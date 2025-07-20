@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
-import { open, message } from "@tauri-apps/plugin-dialog";
+import { open } from "@tauri-apps/plugin-dialog";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { listen } from "@tauri-apps/api/event";
 import { TrackData } from "../types";
@@ -9,6 +9,7 @@ import Pagination from "./Pagination";
 import { path } from "@tauri-apps/api";
 import Controls from "./Controls";
 import TrackList from "./TrackList";
+import MessageDialog from "./MessageDialog";
 
 function Playlist() {
   // State
@@ -23,6 +24,10 @@ function Playlist() {
   const [jumpPage, setJumpPage] = useState("");
   const [progress, setProgress] = useState(0);
   const [progressFile, setProgressFile] = useState("");
+  const [dialog, setDialog] = useState<{
+    title: string;
+    message: string;
+  } | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const tracksPerPage = 10;
 
@@ -32,7 +37,7 @@ function Playlist() {
   }, []);
 
   useEffect(() => {
-    const unlisten = listen("progress", (event) => {
+    const removeProgressListener = listen("progress", (event) => {
       const { progress, file_name } = event.payload as {
         progress: number;
         file_name: string;
@@ -42,7 +47,7 @@ function Playlist() {
     });
 
     return () => {
-      unlisten.then((fn) => fn());
+      removeProgressListener.then((fn) => fn());
     };
   }, []);
 
@@ -186,11 +191,13 @@ function Playlist() {
         fetchTracks();
         setProgress(0);
         setProgressFile("");
-        await message(summary as string, "Import Summary");
-        console.log("Selected folder:", selected);
+        setDialog({ title: "Import Summary", message: summary as string });
       }
     } catch (error) {
-      console.error(" Following errors occurred while adding folder:", error);
+      setDialog({
+        title: "Following errors occurred",
+        message: error as string,
+      });
     }
   };
 
@@ -252,7 +259,7 @@ function Playlist() {
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
-    <div className="playlist-container">
+    <div className="playlist-container relative">
       <Controls
         handleAddTracks={handleAddTracks}
         handleAddFolder={handleAddFolder}
@@ -265,12 +272,21 @@ function Playlist() {
         <div className="mt-4 text-center">
           <p>Adding files: {progress.toFixed(2)}%</p>
           <p>({progressFile})</p>
-          <div className="w-full h-4 my-2 bg-gray-200 rounded-lg overflow-hidden">
+          <div className="w-full h-4 my-4 bg-gray-200 rounded-lg overflow-hidden">
             <div
               className="h-full bg-amber-700 transition-all duration-300"
               style={{ width: `${progress}%` }}
             ></div>
           </div>
+        </div>
+      )}
+      {dialog && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <MessageDialog
+            title={dialog.title}
+            message={dialog.message}
+            onClose={() => setDialog(null)}
+          />
         </div>
       )}
       <TrackList
