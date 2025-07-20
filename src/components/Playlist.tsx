@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-dialog";
+import { open, message } from "@tauri-apps/plugin-dialog";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
+import { listen } from "@tauri-apps/api/event";
 import { TrackData } from "../types";
 import AudioPlayer from "./AudioPlayer";
 import Pagination from "./Pagination";
@@ -20,12 +21,29 @@ function Playlist() {
   const [duration, setDuration] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
   const [jumpPage, setJumpPage] = useState("");
+  const [progress, setProgress] = useState(0);
+  const [progressFile, setProgressFile] = useState("");
   const audioRef = useRef<HTMLAudioElement>(null);
   const tracksPerPage = 10;
 
   // Effects
   useEffect(() => {
     fetchTracks();
+  }, []);
+
+  useEffect(() => {
+    const unlisten = listen("progress", (event) => {
+      const { progress, file_name } = event.payload as {
+        progress: number;
+        file_name: string;
+      };
+      setProgress(progress);
+      setProgressFile(file_name);
+    });
+
+    return () => {
+      unlisten.then((fn) => fn());
+    };
   }, []);
 
   useEffect(() => {
@@ -164,12 +182,15 @@ function Playlist() {
       });
 
       if (selected !== null) {
-        await invoke("read_folder", { pathStr: selected });
+        const summary = await invoke("read_folder", { pathStr: selected });
         fetchTracks();
+        setProgress(0);
+        setProgressFile("");
+        await message(summary as string, "Import Summary");
         console.log("Selected folder:", selected);
       }
     } catch (error) {
-      console.error("Error adding folder:", error);
+      console.error(" Following errors occurred while adding folder:", error);
     }
   };
 
@@ -240,6 +261,18 @@ function Playlist() {
         autoPlay={autoPlay}
         setAutoPlay={setAutoPlay}
       />
+      {progress > 0 && progress < 100 && (
+        <div className="mt-4 text-center">
+          <p>Adding files: {progress.toFixed(2)}%</p>
+          <p>({progressFile})</p>
+          <div className="w-full h-4 my-2 bg-gray-200 rounded-lg overflow-hidden">
+            <div
+              className="h-full bg-amber-700 transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+        </div>
+      )}
       <TrackList
         tracks={currentTracks}
         onPlay={handlePlayTrack}

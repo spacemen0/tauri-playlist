@@ -6,11 +6,11 @@
         "main"
     ],
     "permissions": [
-        "dialog:allow-open",
-        "dialog:allow-save",
+        "dialog:default",
         "opener:default",
         "core:path:default",
-        "shell:allow-open",
+        "shell:default",
+        "core:event:default",
         {
             "identifier": "opener:default",
             "allow": [
