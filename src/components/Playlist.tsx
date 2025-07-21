@@ -20,7 +20,7 @@ function Playlist() {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [isSeeking, setIsSeeking] = useState(false);
+  const [isSliding, setIsSliding] = useState(false);
   const [jumpPage, setJumpPage] = useState("");
   const [progress, setProgress] = useState(0);
   const [progressFile, setProgressFile] = useState("");
@@ -31,7 +31,6 @@ function Playlist() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const tracksPerPage = 10;
 
-  // Effects
   useEffect(() => {
     fetchTracks();
   }, []);
@@ -65,7 +64,7 @@ function Playlist() {
     if (!audio) return;
 
     const handleTimeUpdate = () => {
-      if (!isSeeking) {
+      if (!isSliding) {
         setCurrentTime(audio.currentTime);
       }
     };
@@ -78,7 +77,6 @@ function Playlist() {
       if (
         autoPlay &&
         currentTrack &&
-        tracks.length > 0 &&
         tracks.indexOf(currentTrack) < tracks.length - 1
       ) {
         const nextTrackIndex = tracks.indexOf(currentTrack) + 1;
@@ -99,19 +97,21 @@ function Playlist() {
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
       audio.removeEventListener("ended", handleEnded);
     };
-  }, [isSeeking, autoPlay, currentTrack, tracks]);
+  }, [isSliding, autoPlay, currentTrack, tracks]);
 
-  // Data Fetching
   const fetchTracks = async () => {
     try {
       const fetchedTracks = await invoke<TrackData[]>("get_tracks");
       setTracks(fetchedTracks);
     } catch (error) {
       console.error("Error fetching tracks:", error);
+      setDialog({
+        title: "Error",
+        message: "Failed to fetch tracks.",
+      });
     }
   };
 
-  // Handlers
   const handlePlayTrack = (track: TrackData) => {
     setCurrentTrack(track);
   };
@@ -150,6 +150,10 @@ function Playlist() {
       console.log("Track deleted:", id);
     } catch (error) {
       console.error("Error deleting track:", error);
+      setDialog({
+        title: "Error",
+        message: "Failed to delete track.",
+      });
     }
   };
 
@@ -176,6 +180,10 @@ function Playlist() {
       }
     } catch (error) {
       console.error("Error adding track:", error);
+      setDialog({
+        title: "Error",
+        message: "Failed to add tracks.",
+      });
     }
   };
 
@@ -235,11 +243,11 @@ function Playlist() {
       audio.play();
       setIsPlaying(true);
     }
-    setIsSeeking(false);
+    setIsSliding(false);
   };
 
   const handleSliderMouseDown = () => {
-    setIsSeeking(true);
+    setIsSliding(true);
   };
 
   const handleJump = () => {

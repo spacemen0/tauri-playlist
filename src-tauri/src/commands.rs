@@ -37,6 +37,8 @@ pub async fn read_folder(
 
     collect_audio_files(path, &audio_extensions, &mut audio_files)?;
     let total_files = audio_files.len();
+    let show_progress = total_files > 100;
+    let progress_interval = 10;
 
     for (i, file_path) in audio_files.into_iter().enumerate() {
         if let Err(e) = path_to_db(&file_path, db).await {
@@ -50,14 +52,16 @@ pub async fn read_folder(
             .to_string_lossy()
             .to_string();
 
-        if let Err(e) = app.emit(
-            "progress",
-            ProgressPayload {
-                progress,
-                file_name,
-            },
-        ) {
-            eprintln!("Failed to emit progress event: {e}");
+        if show_progress && ((i + 1) % progress_interval == 0 || i + 1 == total_files) {
+            if let Err(e) = app.emit(
+                "progress",
+                ProgressPayload {
+                    progress,
+                    file_name,
+                },
+            ) {
+                eprintln!("Failed to emit progress event: {e}");
+            }
         }
     }
 
