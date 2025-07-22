@@ -10,6 +10,7 @@ import { path } from "@tauri-apps/api";
 import Controls from "./Controls";
 import TrackList from "./TrackList";
 import MessageDialog from "./MessageDialog";
+import { SearchPanel } from "./SearchPanel";
 
 function Playlist() {
   const [tracks, setTracks] = useState<TrackData[]>([]);
@@ -301,6 +302,13 @@ function Playlist() {
           />
         </div>
       )}
+      <SearchPanel
+        setTracks={setTracks}
+        handleBack={() => {
+          setCurrentPage(1);
+        }}
+        setDialog={setDialog}
+      />
       <TrackList
         tracks={tracks}
         onPlay={handlePlayTrack}

@@ -1,7 +1,7 @@
 use crate::db::AppState;
 use crate::file_utils::{collect_audio_files, path_to_db};
 use crate::models::track;
-use sea_orm::{EntityTrait, PaginatorTrait, QuerySelect};
+use sea_orm::{ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QuerySelect};
 use serde::Serialize;
 use std::path::Path;
 use tauri::{AppHandle, Emitter};
@@ -97,6 +97,28 @@ pub async fn get_tracks_count(state: tauri::State<'_, AppState>) -> Result<u64, 
         .await
         .map_err(|e| format!("Failed to get tracks count: {e}"))?;
     Ok(count)
+}
+
+#[tauri::command]
+pub async fn search_tracks(
+    state: tauri::State<'_, AppState>,
+    query: String,
+) -> Result<Vec<track::Model>, String> {
+    let db = &state.db;
+
+    let tracks = track::Entity::find()
+        .filter(
+            track::Column::Title
+                .contains(&query)
+                .or(track::Column::Artist.contains(&query))
+                .or(track::Column::Album.contains(&query))
+                .or(track::Column::Genre.contains(&query)),
+        )
+        .all(db)
+        .await
+        .map_err(|e| format!("Failed to search tracks: {e}"))?;
+
+    Ok(tracks)
 }
 
 #[tauri::command]

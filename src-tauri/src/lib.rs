@@ -17,6 +17,7 @@ pub fn run() {
             commands::read_folder,
             commands::get_tracks_paginated,
             commands::get_tracks_count,
+            commands::search_tracks,
         ])
         .setup(|app| {
             tauri::async_runtime::block_on(async move {
