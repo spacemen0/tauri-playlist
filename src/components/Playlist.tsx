@@ -14,15 +14,17 @@ import { SearchPanel } from "./SearchPanel";
 
 function Playlist() {
   const [tracks, setTracks] = useState<TrackData[]>([]);
+  const [searchResults, setSearchResults] = useState<TrackData[]>([]);
   const [numTracks, setNumTracks] = useState(0);
   const [currentTrack, setCurrentTrack] = useState<TrackData | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [autoPlay, setAutoPlay] = useState(true);
+  const [searchPagination, setSearchPagination] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isSliding, setIsSliding] = useState(false);
-  const [jumpPage, setJumpPage] = useState("");
+  const [jumpPage, setJumpPage] = useState<number | "">(1);
   const [progress, setProgress] = useState(0);
   const [progressFile, setProgressFile] = useState("");
   const [dialog, setDialog] = useState<{
@@ -33,8 +35,9 @@ function Playlist() {
   const tracksPerPage = 10;
 
   useEffect(() => {
-    fetchTracks();
-  }, [currentPage]);
+    fetchNumTracks();
+    fetchTracks(1);
+  }, []);
 
   useEffect(() => {
     const removeProgressListener = listen("progress", (event) => {
@@ -100,12 +103,23 @@ function Playlist() {
     };
   }, [isSliding, autoPlay, currentTrack, tracks]);
 
-  const fetchTracks = async () => {
+  const fetchNumTracks = async () => {
     try {
       const totalTracks = await invoke<number>("get_tracks_count");
       setNumTracks(totalTracks);
+    } catch (error) {
+      console.error("Error fetching number of tracks:", error);
+      setDialog({
+        title: "Error",
+        message: "Failed to fetch number of tracks.",
+      });
+    }
+  };
+
+  const fetchTracks = async (page: number) => {
+    try {
       const fetchedTracks = await invoke<TrackData[]>("get_tracks_paginated", {
-        page: currentPage,
+        page,
         pageSize: tracksPerPage,
       });
       setTracks(fetchedTracks);
@@ -182,7 +196,7 @@ function Playlist() {
           await invoke("read_file", { pathStr: path });
         }
 
-        fetchTracks();
+        fetchTracks(currentPage);
       }
     } catch (error) {
       console.error("Error adding track:", error);
@@ -202,13 +216,13 @@ function Playlist() {
 
       if (selected !== null) {
         const summary = await invoke("read_folder", { pathStr: selected });
-        fetchTracks();
+        fetchTracks(currentPage);
         setProgress(0);
         setProgressFile("");
         setDialog({ title: "Import Summary", message: summary as string });
       }
     } catch (error) {
-      fetchTracks();
+      fetchTracks(currentPage);
       setProgress(0);
       setProgressFile("");
       setDialog({
@@ -260,16 +274,53 @@ function Playlist() {
   };
 
   const handleJump = () => {
-    const pageNum = parseInt(jumpPage, 10);
-    if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
+    if (typeof jumpPage === "string") {
+      setJumpPage("");
+      return;
+    }
+    const pageNum = jumpPage;
+    if (pageNum >= 1 && pageNum <= totalPages) {
       paginate(pageNum);
       setJumpPage("");
     }
   };
 
+  const handleSearch = async (query: string) => {
+    if (query.trim() === "") {
+      setTracks([]);
+      return;
+    }
+    try {
+      const results = await invoke<TrackData[]>("search_tracks", {
+        query,
+      });
+      setSearchResults(results);
+      setSearchPagination(true);
+      setCurrentPage(1);
+      setNumTracks(results.length);
+      setTracks(results.slice(0, tracksPerPage));
+    } catch (error) {
+      console.error("Error searching tracks:", error);
+      setDialog({ title: "error", message: "Failed to search tracks" });
+    }
+  };
+
   const totalPages = Math.ceil(numTracks / tracksPerPage);
 
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber: number) => {
+    if (searchPagination) {
+      setCurrentPage(pageNumber);
+      setTracks(
+        searchResults.slice(
+          (pageNumber - 1) * tracksPerPage,
+          pageNumber * tracksPerPage
+        )
+      );
+    } else {
+      setCurrentPage(pageNumber);
+      fetchTracks(pageNumber);
+    }
+  };
 
   return (
     <div className="playlist-container relative">
@@ -303,18 +354,19 @@ function Playlist() {
         </div>
       )}
       <SearchPanel
-        setTracks={setTracks}
+        handleSearch={handleSearch}
         handleBack={() => {
           setCurrentPage(1);
+          fetchNumTracks();
+          fetchTracks(1);
+          setSearchPagination(false);
         }}
-        setDialog={setDialog}
       />
       <TrackList
         tracks={tracks}
         onPlay={handlePlayTrack}
         onDelete={handleDeleteTrack}
       />
-
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
@@ -323,6 +375,7 @@ function Playlist() {
         setJumpPage={setJumpPage}
         handleJump={handleJump}
       />
+
       {currentTrack && (
         <AudioPlayer
           track={currentTrack}

@@ -1,35 +1,14 @@
 import { useState } from "react";
-import { TrackData } from "../types";
-import { invoke } from "@tauri-apps/api/core";
 
 export function SearchPanel({
-  setTracks,
+  handleSearch,
   handleBack,
-  setDialog,
 }: {
-  setTracks: React.Dispatch<React.SetStateAction<TrackData[]>>;
+  handleSearch: (query: string) => Promise<void>;
   handleBack: () => void;
-  setDialog: React.Dispatch<
-    React.SetStateAction<{ title: string; message: string } | null>
-  >;
 }) {
   const [searchQuery, setSearchQuery] = useState("");
 
-  const handleSearch = async () => {
-    if (searchQuery.trim() === "") {
-      setTracks([]);
-      return;
-    }
-    try {
-      const results = await invoke<TrackData[]>("search_tracks", {
-        query: searchQuery,
-      });
-      setTracks(results);
-    } catch (error) {
-      console.error("Error searching tracks:", error);
-      setDialog({ title: "error", message: "Failed to search tracks" });
-    }
-  };
   return (
     <div className="flex items-center justify-center gap-4 mb-4">
       <input
@@ -38,11 +17,25 @@ export function SearchPanel({
         className="p-2 border-2 rounded w-3xl h-12 font-medium text-white border-[#e78534] bg-[#2a2a2a] focus:outline-none focus:ring-2 focus:ring-[#975508] focus:border-none"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            handleSearch(searchQuery);
+          }
+        }}
       />
-      <button className="add-button" onClick={handleSearch}>
+      <button
+        className="add-button"
+        onClick={handleSearch.bind(null, searchQuery)}
+      >
         Search
       </button>
-      <button className="add-button" onClick={handleBack}>
+      <button
+        className="add-button"
+        onClick={() => {
+          setSearchQuery("");
+          handleBack();
+        }}
+      >
         Back
       </button>
     </div>

@@ -2,8 +2,8 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   paginate: (pageNumber: number) => void;
-  jumpPage: string;
-  setJumpPage: (page: string) => void;
+  jumpPage: number | "";
+  setJumpPage: (page: number | "") => void;
   handleJump: () => void;
 }
 
@@ -23,7 +23,9 @@ function Pagination({
         pages.push(
           <button
             key={i}
-            onClick={() => paginate(i)}
+            onClick={() => {
+              paginate(i);
+            }}
             className={`page-item ${currentPage === i ? "active" : ""}`}
           >
             {i}
@@ -93,8 +95,24 @@ function Pagination({
         min="1"
         max={totalPages}
         value={jumpPage}
-        onChange={(e) => setJumpPage(e.target.value)}
-        placeholder="Page"
+        onChange={(e) => {
+          const value = e.target.value;
+          if (value === "") {
+            setJumpPage("");
+          } else if (
+            !isNaN(Number(value)) &&
+            Number(value) > 0 &&
+            Number(value) <= totalPages
+          ) {
+            setJumpPage(Number(value));
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            handleJump();
+          }
+        }}
+        placeholder="Jump"
         className="m-[5px] p-1 border rounded w-16 text-center bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#975508] focus:border-transparent"
       />
       <button
