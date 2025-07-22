@@ -23,12 +23,15 @@ function AudioPlayer({
   onSliderMouseUp,
 }: AudioPlayerProps) {
   return (
-    <div className="track-info">
+    <div className="mt-2 p-2.5 bg-zinc-700 rounded-md text-center text-lg">
       <div className="now-playing">
         Now Playing: {track.artist} - {track.title}
       </div>
-      <div className="audio-controls">
-        <button className="play-pause-button" onClick={onPlayPause}>
+      <div className="flex items-center justify-center gap-2.5">
+        <button
+          className="p-2 m-1.5 bg-orange-500 hover:bg-orange-700 text-white border-none rounded-md cursor-pointer text-lg"
+          onClick={onPlayPause}
+        >
           {isPlaying ? "Pause" : "Play"}
         </button>
         <input

@@ -1,4 +1,3 @@
-
 import Switch from "./Switch";
 
 interface ControlsProps {
@@ -10,22 +9,41 @@ interface ControlsProps {
   setAutoPlay: (checked: boolean) => void;
 }
 
-function Controls({ handleAddTracks, handleAddFolder, handlePlayRandomTrack, handleOpenDataDir, autoPlay, setAutoPlay }: ControlsProps) {
+function Controls({
+  handleAddTracks,
+  handleAddFolder,
+  handlePlayRandomTrack,
+  handleOpenDataDir,
+  autoPlay,
+  setAutoPlay,
+}: ControlsProps) {
   return (
-    <div className="controls">
-      <button className="add-button" onClick={handleAddTracks}>
+    <div className="flex items-center justify-center gap-2 mb-5 flex-wrap">
+      <button
+        className="py-2 px-4 bg-orange-500 text-white border-none text-lg rounded-md cursor-pointer hover:bg-orange-700"
+        onClick={handleAddTracks}
+      >
         Add Tracks
       </button>
-      <button className="add-button" onClick={handleAddFolder}>
+      <button
+        className="py-2 px-4 bg-orange-500 text-white border-none text-lg rounded-md cursor-pointer hover:bg-orange-700"
+        onClick={handleAddFolder}
+      >
         Add Folder
       </button>
-      <button className="add-button" onClick={handlePlayRandomTrack}>
+      <button
+        className="py-2 px-4 bg-orange-500 text-white border-none text-lg rounded-md cursor-pointer hover:bg-orange-700"
+        onClick={handlePlayRandomTrack}
+      >
         Play Random Track
       </button>
-      <button className="add-button" onClick={handleOpenDataDir}>
+      <button
+        className="py-2 px-4 bg-orange-500 text-white border-none text-lg rounded-md cursor-pointer hover:bg-orange-700"
+        onClick={handleOpenDataDir}
+      >
         Open Data Dir
       </button>
-      <div className="auto-play-toggle">
+      <div className="flex items-center gap-2">
         <span>Auto Play Next</span>
         <Switch
           checked={autoPlay}

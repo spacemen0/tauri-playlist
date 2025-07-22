@@ -26,7 +26,9 @@ function Pagination({
             onClick={() => {
               paginate(i);
             }}
-            className={`page-item ${currentPage === i ? "active" : ""}`}
+            className={`m-1.5 py-2 px-3 bg-white text-black border-none rounded-md cursor-pointer text-lg hover:bg-orange-700 md:py-1.5 md:px-3 md:text-base ${
+              currentPage === i ? "bg-orange-500" : ""
+            }`}
           >
             {i}
           </button>
@@ -37,7 +39,9 @@ function Pagination({
         <button
           key={1}
           onClick={() => paginate(1)}
-          className={`page-item ${currentPage === 1 ? "active" : ""}`}
+          className={`m-1.5 py-2 px-3  text-black border-none rounded-md cursor-pointer text-lg hover:bg-orange-700 md:py-1.5 md:px-3 md:text-base ${
+            currentPage === 1 ? "bg-orange-500" : "bg-white"
+          }`}
         >
           1
         </button>
@@ -59,7 +63,9 @@ function Pagination({
           <button
             key={i}
             onClick={() => paginate(i)}
-            className={`page-item ${currentPage === i ? "active" : ""}`}
+            className={`m-1.5 py-2 px-3  text-black border-none rounded-md cursor-pointer text-lg hover:bg-orange-700 md:py-1.5 md:px-3 md:text-base ${
+              currentPage === i ? "bg-orange-500" : "bg-white"
+            }`}
           >
             {i}
           </button>
@@ -78,7 +84,9 @@ function Pagination({
         <button
           key={totalPages}
           onClick={() => paginate(totalPages)}
-          className={`page-item ${currentPage === totalPages ? "active" : ""}`}
+          className={`m-1.5 py-2 px-3  text-black border-none rounded-md cursor-pointer text-lg hover:bg-orange-700 md:py-1.5 md:px-3 md:text-base ${
+            currentPage === totalPages ? "bg-orange-500" : "bg-white"
+          }`}
         >
           {totalPages}
         </button>
@@ -89,7 +97,7 @@ function Pagination({
   };
 
   return (
-    <div className="pagination">
+    <div className="flex justify-center flex-wrap mb-2">
       {renderPages()}
       <input
         min="1"
@@ -113,11 +121,11 @@ function Pagination({
           }
         }}
         placeholder="Jump"
-        className="m-[5px] p-1 border rounded w-16 text-center bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#975508] focus:border-transparent"
+        className="m-1.5 p-1 border rounded w-16 text-center bg-white text-black focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-none"
       />
       <button
         onClick={handleJump}
-        className=" m-[5px] px-2 rounded bg-[#e78534] text-black hover:bg-[#975508]"
+        className="m-1.5 px-2 rounded bg-orange-500 text-black hover:bg-orange-700"
       >
         Go
       </button>

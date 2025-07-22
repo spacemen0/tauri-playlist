@@ -11,17 +11,51 @@ interface TrackProps {
 // Represents a single track in the playlist
 function Track({ track, onPlay, onDelete }: TrackProps) {
   return (
-    <tr>
-      <td data-label="Title">{track.title}</td>
-      <td data-label="Artist">{track.artist}</td>
-      <td data-label="Album">{track.album}</td>
-      <td data-label="Genre">{track.genre}</td>
-      <td data-label="Length">{formatTime(track.length)}</td>
-      <td data-label="Actions">
-        <button className="play-button" onClick={() => onPlay(track)}>
+    <tr className="hover:bg-zinc-700 md:table-row block mb-4 border border-zinc-700 rounded-md md:border-none">
+      <td
+        data-label="Title"
+        className="py-3 px-4 text-left border-b border-zinc-700 whitespace-nowrap block md:table-cell  md:text-left pl-1/2 relative before:content-[attr(data-label)] before:absolute before:left-2.5 before:w-[calc(50%_-_20px)] before:pr-2.5 before:whitespace-nowrap before:text-left before:font-bold md:before:content-none"
+      >
+        {track.title}
+      </td>
+      <td
+        data-label="Artist"
+        className="py-3 px-4 text-left border-b border-zinc-700 whitespace-nowrap block md:table-cell  md:text-left pl-1/2 relative before:content-[attr(data-label)] before:absolute before:left-2.5 before:w-[calc(50%_-_20px)] before:pr-2.5 before:whitespace-nowrap before:text-left before:font-bold md:before:content-none"
+      >
+        {track.artist}
+      </td>
+      <td
+        data-label="Album"
+        className="py-3 px-4 text-left border-b border-zinc-700 whitespace-nowrap block md:table-cell  md:text-left pl-1/2 relative before:content-[attr(data-label)] before:absolute before:left-2.5 before:w-[calc(50%_-_20px)] before:pr-2.5 before:whitespace-nowrap before:text-left before:font-bold md:before:content-none"
+      >
+        {track.album}
+      </td>
+      <td
+        data-label="Genre"
+        className="py-3 px-4 text-left border-b border-zinc-700 whitespace-nowrap block md:table-cell  md:text-left pl-1/2 relative before:content-[attr(data-label)] before:absolute before:left-2.5 before:w-[calc(50%_-_20px)] before:pr-2.5 before:whitespace-nowrap before:text-left before:font-bold md:before:content-none"
+      >
+        {track.genre}
+      </td>
+      <td
+        data-label="Length"
+        className="py-3 px-4 text-left border-b border-zinc-700 whitespace-nowrap block md:table-cell  md:text-left pl-1/2 relative before:content-[attr(data-label)] before:absolute before:left-2.5 before:w-[calc(50%_-_20px)] before:pr-2.5 before:whitespace-nowrap before:text-left before:font-bold md:before:content-none"
+      >
+        {formatTime(track.length)}
+      </td>
+      <td
+        data-label="Actions"
+        className="py-3 px-4  border-b border-zinc-700 whitespace-nowrap block md:table-cell text-center md:text-left"
+      >
+        <button
+          className="py-2 px-3 text-white border-none rounded-md cursor-pointer text-lg bg-orange-500 mr-1.5 hover:bg-orange-700 md:py-1.5 md:px-2.5 "
+          onClick={() => onPlay(track)}
+        >
           Play
         </button>
-        <button className="delete-button" onClick={() => onDelete(track.id)}>
+        <button
+          className="py-2 px-3 text-white border-none rounded-md cursor-pointer text-lg bg-orange-500 hover:bg-orange-700 md:py-1.5 md:px-2.5 "
+          onClick={() => onDelete(track.id)}
+        >
           Delete
         </button>
       </td>

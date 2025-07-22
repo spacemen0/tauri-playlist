@@ -323,7 +323,7 @@ function Playlist() {
   };
 
   return (
-    <div className="playlist-container relative">
+    <div className="w-full bg-zinc-800 rounded-lg p-5 shadow-lg md:p-4 sm:p-3 h-full flex flex-col justify-center">
       <Controls
         handleAddTracks={handleAddTracks}
         handleAddFolder={handleAddFolder}

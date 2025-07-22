@@ -14,7 +14,7 @@ export function SearchPanel({
       <input
         type="text"
         placeholder="Search tracks..."
-        className="p-2 border-2 rounded w-3xl h-12 font-medium text-white border-[#e78534] bg-[#2a2a2a] focus:outline-none focus:ring-2 focus:ring-[#975508] focus:border-none"
+        className="p-2 border-2 rounded w-3xl h-12 font-medium text-white border-orange-500 bg-[#2a2a2a] focus:outline-none focus:ring-2 focus:ring-orange-700 focus:border-none"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         onKeyDown={(e) => {
@@ -24,13 +24,13 @@ export function SearchPanel({
         }}
       />
       <button
-        className="add-button"
+        className="py-2 px-4 bg-orange-500 text-white border-none text-lg rounded-md cursor-pointer hover:bg-orange-700"
         onClick={handleSearch.bind(null, searchQuery)}
       >
         Search
       </button>
       <button
-        className="add-button"
+        className="py-2 px-4 bg-orange-500 text-white border-none text-lg rounded-md cursor-pointer hover:bg-orange-700"
         onClick={() => {
           setSearchQuery("");
           handleBack();

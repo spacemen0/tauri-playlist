@@ -2,7 +2,7 @@ import Playlist from "./components/Playlist";
 
 function App() {
   return (
-    <main className="main-container">
+    <main className="h-screen box-border">
       <Playlist />
     </main>
   );
