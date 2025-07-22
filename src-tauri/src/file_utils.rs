@@ -1,6 +1,8 @@
 use crate::db::Db;
+use crate::models::track;
 use lofty::prelude::*;
 use lofty::probe::Probe;
+use sea_orm::{ActiveModelTrait, Set};
 use std::path::Path;
 
 pub fn collect_audio_files(
@@ -59,17 +61,21 @@ pub async fn path_to_db(path_str: &str, db: &Db) -> Result<(), String> {
 
     let duration = properties.duration();
     let seconds = duration.as_secs();
-    sqlx::query(
-        "INSERT OR IGNORE INTO tracks (artist, title, album, genre, length, path) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-    )
-    .bind(artist)
-    .bind(title)
-    .bind(album)
-    .bind(genre)
-    .bind(seconds as u16)
-    .bind(path_str)
-    .execute(db)
-    .await
-    .map_err(|e| format!("Error saving track: {e}"))?;
+
+    let track = track::ActiveModel {
+        artist: Set(Some(artist.to_string())),
+        title: Set(Some(title.to_string())),
+        album: Set(Some(album.to_string())),
+        genre: Set(Some(genre.to_string())),
+        length: Set(Some(seconds as i32)),
+        path: Set(path_str.to_string()),
+        ..Default::default()
+    };
+
+    track
+        .insert(db)
+        .await
+        .map_err(|e| format!("Error saving track: {e}"))?;
+
     Ok(())
 }

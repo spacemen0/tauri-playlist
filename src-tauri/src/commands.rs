@@ -1,7 +1,7 @@
 use crate::db::AppState;
 use crate::file_utils::{collect_audio_files, path_to_db};
-use crate::models::Track;
-use futures::TryStreamExt;
+use crate::models::track;
+use sea_orm::EntityTrait;
 use serde::Serialize;
 use std::path::Path;
 use tauri::{AppHandle, Emitter};
@@ -73,12 +73,11 @@ pub async fn read_folder(
 }
 
 #[tauri::command]
-pub async fn get_tracks(state: tauri::State<'_, AppState>) -> Result<Vec<Track>, String> {
+pub async fn get_tracks(state: tauri::State<'_, AppState>) -> Result<Vec<track::Model>, String> {
     let db = &state.db;
 
-    let tracks: Vec<Track> = sqlx::query_as::<_, Track>("SELECT * FROM tracks")
-        .fetch(db)
-        .try_collect()
+    let tracks = track::Entity::find()
+        .all(db)
         .await
         .map_err(|e| format!("Failed to get tracks {e}"))?;
 
@@ -86,12 +85,11 @@ pub async fn get_tracks(state: tauri::State<'_, AppState>) -> Result<Vec<Track>,
 }
 
 #[tauri::command]
-pub async fn delete_track(state: tauri::State<'_, AppState>, id: u16) -> Result<(), String> {
+pub async fn delete_track(state: tauri::State<'_, AppState>, id: i32) -> Result<(), String> {
     let db = &state.db;
 
-    sqlx::query("DELETE FROM tracks WHERE id = ?1")
-        .bind(id)
-        .execute(db)
+    track::Entity::delete_by_id(id)
+        .exec(db)
         .await
         .map_err(|e| format!("could not delete track {e}"))?;
 

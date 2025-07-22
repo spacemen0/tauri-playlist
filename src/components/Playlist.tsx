@@ -202,6 +202,9 @@ function Playlist() {
         setDialog({ title: "Import Summary", message: summary as string });
       }
     } catch (error) {
+      fetchTracks();
+      setProgress(0);
+      setProgressFile("");
       setDialog({
         title: "Following errors occurred",
         message: error as string,
