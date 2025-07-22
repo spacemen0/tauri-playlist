@@ -15,6 +15,8 @@ pub fn run() {
             commands::get_tracks,
             commands::delete_track,
             commands::read_folder,
+            commands::get_tracks_paginated,
+            commands::get_tracks_count,
         ])
         .setup(|app| {
             tauri::async_runtime::block_on(async move {

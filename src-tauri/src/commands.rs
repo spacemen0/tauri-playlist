@@ -1,7 +1,7 @@
 use crate::db::AppState;
 use crate::file_utils::{collect_audio_files, path_to_db};
 use crate::models::track;
-use sea_orm::EntityTrait;
+use sea_orm::{EntityTrait, PaginatorTrait, QuerySelect};
 use serde::Serialize;
 use std::path::Path;
 use tauri::{AppHandle, Emitter};
@@ -70,6 +70,33 @@ pub async fn read_folder(
     } else {
         Ok(success_string)
     }
+}
+
+#[tauri::command]
+pub async fn get_tracks_paginated(
+    state: tauri::State<'_, AppState>,
+    page: u64,
+    page_size: u64,
+) -> Result<Vec<track::Model>, String> {
+    let db = &state.db;
+    let offset = (page - 1) * page_size;
+    let tracks = track::Entity::find()
+        .limit(page_size)
+        .offset(offset)
+        .all(db)
+        .await
+        .map_err(|e| format!("Failed to get paginated tracks: {e}"))?;
+    Ok(tracks)
+}
+
+#[tauri::command]
+pub async fn get_tracks_count(state: tauri::State<'_, AppState>) -> Result<u64, String> {
+    let db = &state.db;
+    let count = track::Entity::find()
+        .count(db)
+        .await
+        .map_err(|e| format!("Failed to get tracks count: {e}"))?;
+    Ok(count)
 }
 
 #[tauri::command]

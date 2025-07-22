@@ -13,6 +13,7 @@ import MessageDialog from "./MessageDialog";
 
 function Playlist() {
   const [tracks, setTracks] = useState<TrackData[]>([]);
+  const [numTracks, setNumTracks] = useState(0);
   const [currentTrack, setCurrentTrack] = useState<TrackData | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [autoPlay, setAutoPlay] = useState(true);
@@ -23,7 +24,6 @@ function Playlist() {
   const [jumpPage, setJumpPage] = useState("");
   const [progress, setProgress] = useState(0);
   const [progressFile, setProgressFile] = useState("");
-  // const [query_value, setQueryValue] = useState("");
   const [dialog, setDialog] = useState<{
     title: string;
     message: string;
@@ -33,7 +33,7 @@ function Playlist() {
 
   useEffect(() => {
     fetchTracks();
-  }, []);
+  }, [currentPage]);
 
   useEffect(() => {
     const removeProgressListener = listen("progress", (event) => {
@@ -101,7 +101,12 @@ function Playlist() {
 
   const fetchTracks = async () => {
     try {
-      const fetchedTracks = await invoke<TrackData[]>("get_tracks");
+      const totalTracks = await invoke<number>("get_tracks_count");
+      setNumTracks(totalTracks);
+      const fetchedTracks = await invoke<TrackData[]>("get_tracks_paginated", {
+        page: currentPage,
+        pageSize: tracksPerPage,
+      });
       setTracks(fetchedTracks);
     } catch (error) {
       console.error("Error fetching tracks:", error);
@@ -261,18 +266,9 @@ function Playlist() {
     }
   };
 
-  // Pagination
-  const indexOfLastTrack = currentPage * tracksPerPage;
-  const indexOfFirstTrack = indexOfLastTrack - tracksPerPage;
-  const currentTracks = tracks.slice(indexOfFirstTrack, indexOfLastTrack);
-  const totalPages = Math.ceil(tracks.length / tracksPerPage);
+  const totalPages = Math.ceil(numTracks / tracksPerPage);
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-
-  // const { setQuery, results } = useSearch(tracks, {
-  //   keys: ["title", "artist", "album", "genre"],
-  //   threshold: 0.3,
-  // });
 
   return (
     <div className="playlist-container relative">
@@ -305,22 +301,8 @@ function Playlist() {
           />
         </div>
       )}
-      {/* <div className="search-container">
-        <input
-          type="text"
-          value={query_value}
-          onChange={(e) => setQueryValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              setQuery(query_value);
-            }
-          }}
-          placeholder="Search tracks..."
-          className="search-input"
-        />
-      </div> */}
       <TrackList
-        tracks={currentTracks}
+        tracks={tracks}
         onPlay={handlePlayTrack}
         onDelete={handleDeleteTrack}
       />
