@@ -17,50 +17,26 @@ function Track({ track, currentTrackId, onPlay, onDelete }: TrackProps) {
         currentTrackId === track.id ? "bg-zinc-700" : ""
       }`}
     >
-      <td
-        data-label="Title"
-        className="py-3 px-6 text-left border-b border-zinc-700 whitespace-nowrap block md:table-cell  md:text-left pl-1/2 relative before:content-[attr(data-label)] before:absolute before:left-2.5 before:w-[calc(50%_-_20px)] before:pr-2.5 before:whitespace-nowrap before:text-left before:font-bold md:before:content-none"
-      >
+      <td data-label="Title" className="rounded-l-md table_cell">
         {track.title}
       </td>
-      <td
-        data-label="Artist"
-        className="py-3 px-6 text-left border-b border-zinc-700 whitespace-nowrap block md:table-cell  md:text-left pl-1/2 relative before:content-[attr(data-label)] before:absolute before:left-2.5 before:w-[calc(50%_-_20px)] before:pr-2.5 before:whitespace-nowrap before:text-left before:font-bold md:before:content-none"
-      >
+      <td data-label="Artist" className="table_cell">
         {track.artist}
       </td>
-      <td
-        data-label="Album"
-        className="py-3 px-6 text-left border-b border-zinc-700 whitespace-nowrap block md:table-cell  md:text-left pl-1/2 relative before:content-[attr(data-label)] before:absolute before:left-2.5 before:w-[calc(50%_-_20px)] before:pr-2.5 before:whitespace-nowrap before:text-left before:font-bold md:before:content-none"
-      >
+      <td data-label="Album" className="table_cell">
         {track.album}
       </td>
-      <td
-        data-label="Genre"
-        className="py-3 px-6 text-left border-b border-zinc-700 whitespace-nowrap block md:table-cell  md:text-left pl-1/2 relative before:content-[attr(data-label)] before:absolute before:left-2.5 before:w-[calc(50%_-_20px)] before:pr-2.5 before:whitespace-nowrap before:text-left before:font-bold md:before:content-none"
-      >
+      <td data-label="Genre" className="table_cell">
         {track.genre}
       </td>
-      <td
-        data-label="Length"
-        className="py-3 px-6 text-left border-b border-zinc-700 whitespace-nowrap block md:table-cell  md:text-left pl-1/2 relative before:content-[attr(data-label)] before:absolute before:left-2.5 before:w-[calc(50%_-_20px)] before:pr-2.5 before:whitespace-nowrap before:text-left before:font-bold md:before:content-none"
-      >
+      <td data-label="Length" className="table_cell">
         {formatTime(track.length)}
       </td>
-      <td
-        data-label="Actions"
-        className="py-3 px-6  border-b border-zinc-700 whitespace-nowrap block md:table-cell text-center md:text-left"
-      >
-        <button
-          className="py-2 px-3 text-white border-none rounded-md cursor-pointer text-lg bg-orange-500 mr-1.5 hover:bg-orange-700 md:py-1.5 md:px-2.5 "
-          onClick={() => onPlay(track)}
-        >
+      <td data-label="Actions" className="rounded-r-md table_cell">
+        <button className="btn mr-1.5" onClick={() => onPlay(track)}>
           Play
         </button>
-        <button
-          className="py-2 px-3 text-white border-none rounded-md cursor-pointer text-lg bg-orange-500 hover:bg-orange-700 md:py-1.5 md:px-2.5 "
-          onClick={() => onDelete(track.id)}
-        >
+        <button className="btn" onClick={() => onDelete(track.id)}>
           Delete
         </button>
       </td>

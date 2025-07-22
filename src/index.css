@@ -15,6 +15,22 @@
   -webkit-text-size-adjust: 100%;
 }
 
+.table_cell {
+  @apply py-3 px-6 text-left border-b border-zinc-700 whitespace-nowrap block md:table-cell  md:text-left relative before:content-[attr(data-label)] before:absolute before:left-2.5 before:w-[calc(50%_-_20px)] before:pr-2.5 before:whitespace-nowrap before:text-left before:font-bold md:before:content-none;
+}
+
+.table_header {
+  @apply py-3 px-6 text-left border-b border-zinc-700 bg-zinc-600 font-bold whitespace-nowrap;
+}
+
+.btn {
+  @apply py-2 px-4 bg-orange-500 text-white border-none text-lg rounded-md cursor-pointer hover:bg-orange-700;
+}
+
+.pagination_btn {
+  @apply py-2 px-4 mr-2 text-black border-none rounded-md cursor-pointer text-lg hover:bg-orange-700;
+}
+
 .switch {
   position: relative;
   display: inline-block;

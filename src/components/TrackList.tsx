@@ -19,24 +19,12 @@ function TrackList({
       <table className="self-center border-collapse mb-5 block overflow-x-auto">
         <thead className="hidden md:table-header-group text-lg">
           <tr>
-            <th className="p-3 text-left border-b border-zinc-700 bg-zinc-600 font-bold whitespace-nowrap">
-              Title
-            </th>
-            <th className="p-3 text-left border-b border-zinc-700 bg-zinc-600 font-bold whitespace-nowrap">
-              Artist
-            </th>
-            <th className="p-3 text-left border-b border-zinc-700 bg-zinc-600 font-bold whitespace-nowrap">
-              Album
-            </th>
-            <th className="p-3 text-left border-b border-zinc-700 bg-zinc-600 font-bold whitespace-nowrap">
-              Genre
-            </th>
-            <th className="p-3 text-left border-b border-zinc-700 bg-zinc-600 font-bold whitespace-nowrap">
-              Length
-            </th>
-            <th className="p-3 text-left border-b border-zinc-700 bg-zinc-600 font-bold whitespace-nowrap">
-              Actions
-            </th>
+            <th className="rounded-l-md table_header">Title</th>
+            <th className="table_header">Artist</th>
+            <th className="table_header">Album</th>
+            <th className="table_header">Genre</th>
+            <th className="table_header">Length</th>
+            <th className="rounded-r-md table_header">Actions</th>
           </tr>
         </thead>
         <tbody>

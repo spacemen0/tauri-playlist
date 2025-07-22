@@ -28,10 +28,7 @@ function AudioPlayer({
         Now Playing: {track.artist} - {track.title}
       </div>
       <div className="flex items-center justify-center gap-2.5 mb-2">
-        <button
-          className="p-2 m-1.5 bg-orange-500 hover:bg-orange-700 text-white border-none rounded-md cursor-pointer text-lg"
-          onClick={onPlayPause}
-        >
+        <button className="btn" onClick={onPlayPause}>
           {isPlaying ? "Pause" : "Play"}
         </button>
         <input

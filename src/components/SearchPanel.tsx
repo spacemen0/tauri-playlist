@@ -23,14 +23,11 @@ export function SearchPanel({
           }
         }}
       />
-      <button
-        className="py-2 px-4 bg-orange-500 text-white border-none text-lg rounded-md cursor-pointer hover:bg-orange-700"
-        onClick={handleSearch.bind(null, searchQuery)}
-      >
+      <button className="btn" onClick={handleSearch.bind(null, searchQuery)}>
         Search
       </button>
       <button
-        className="py-2 px-4 bg-orange-500 text-white border-none text-lg rounded-md cursor-pointer hover:bg-orange-700"
+        className="btn"
         onClick={() => {
           setSearchQuery("");
           handleBack();
