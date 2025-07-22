@@ -364,6 +364,7 @@ function Playlist() {
       />
       <TrackList
         tracks={tracks}
+        currentTrackId={currentTrack ? currentTrack.id : -1}
         onPlay={handlePlayTrack}
         onDelete={handleDeleteTrack}
       />
