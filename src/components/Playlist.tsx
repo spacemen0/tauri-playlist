@@ -116,19 +116,21 @@ function Playlist() {
     }
   };
 
-  const fetchTracks = async (page: number) => {
+  const fetchTracks = async (page: number): Promise<TrackData[]> => {
     try {
       const fetchedTracks = await invoke<TrackData[]>("get_tracks_paginated", {
         page,
         pageSize: tracksPerPage,
       });
       setTracks(fetchedTracks);
+      return fetchedTracks;
     } catch (error) {
       console.error("Error fetching tracks:", error);
       setDialog({
         title: "Error",
         message: "Failed to fetch tracks.",
       });
+      return [];
     }
   };
 
@@ -232,15 +234,26 @@ function Playlist() {
     }
   };
 
-  const handlePlayRandomTrack = () => {
-    if (tracks.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * tracks.length);
-    const randomTrack = tracks[randomIndex];
-    setCurrentTrack(randomTrack);
-    if (audioRef.current) {
-      audioRef.current.src = convertFileSrc(randomTrack.path);
-      audioRef.current.play();
-      setIsPlaying(true);
+  const handlePlayRandomTrack = async () => {
+    if (numTracks === 0) return;
+
+    const randomPage = Math.ceil(Math.random() * totalPages);
+    if (searchPagination) {
+      setCurrentPage(randomPage);
+      const paginatedTracks = searchResults.slice(
+        (randomPage - 1) * tracksPerPage,
+        randomPage * tracksPerPage
+      );
+      setTracks(paginatedTracks);
+      const randomIndex = Math.floor(Math.random() * paginatedTracks.length);
+      const randomTrack = paginatedTracks[randomIndex];
+      setCurrentTrack(randomTrack);
+    } else {
+      setCurrentPage(randomPage);
+      const fetchedTracks = await fetchTracks(randomPage);
+      const randomIndex = Math.floor(Math.random() * fetchedTracks.length);
+      const randomTrack = fetchedTracks[randomIndex];
+      setCurrentTrack(randomTrack);
     }
   };
 
