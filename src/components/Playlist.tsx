@@ -12,7 +12,6 @@ import TrackList from "./TrackList";
 import MessageDialog from "./MessageDialog";
 
 function Playlist() {
-  // State
   const [tracks, setTracks] = useState<TrackData[]>([]);
   const [currentTrack, setCurrentTrack] = useState<TrackData | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -24,6 +23,7 @@ function Playlist() {
   const [jumpPage, setJumpPage] = useState("");
   const [progress, setProgress] = useState(0);
   const [progressFile, setProgressFile] = useState("");
+  // const [query_value, setQueryValue] = useState("");
   const [dialog, setDialog] = useState<{
     title: string;
     message: string;
@@ -269,6 +269,11 @@ function Playlist() {
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
+  // const { setQuery, results } = useSearch(tracks, {
+  //   keys: ["title", "artist", "album", "genre"],
+  //   threshold: 0.3,
+  // });
+
   return (
     <div className="playlist-container relative">
       <Controls
@@ -300,11 +305,26 @@ function Playlist() {
           />
         </div>
       )}
+      {/* <div className="search-container">
+        <input
+          type="text"
+          value={query_value}
+          onChange={(e) => setQueryValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setQuery(query_value);
+            }
+          }}
+          placeholder="Search tracks..."
+          className="search-input"
+        />
+      </div> */}
       <TrackList
         tracks={currentTracks}
         onPlay={handlePlayTrack}
         onDelete={handleDeleteTrack}
       />
+
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}

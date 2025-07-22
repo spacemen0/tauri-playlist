@@ -63,11 +63,11 @@ pub async fn path_to_db(path_str: &str, db: &Db) -> Result<(), String> {
     let seconds = duration.as_secs();
 
     let track = track::ActiveModel {
-        artist: Set(Some(artist.to_string())),
-        title: Set(Some(title.to_string())),
-        album: Set(Some(album.to_string())),
-        genre: Set(Some(genre.to_string())),
-        length: Set(Some(seconds as i32)),
+        artist: Set(artist.to_string()),
+        title: Set(title.to_string()),
+        album: Set(album.to_string()),
+        genre: Set(genre.to_string()),
+        length: Set(seconds as i32),
         path: Set(path_str.to_string()),
         ..Default::default()
     };

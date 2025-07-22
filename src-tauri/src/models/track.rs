@@ -6,11 +6,11 @@ use serde::{Deserialize, Serialize};
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    pub artist: Option<String>,
-    pub title: Option<String>,
-    pub album: Option<String>,
-    pub genre: Option<String>,
-    pub length: Option<i32>,
+    pub artist: String,
+    pub title: String,
+    pub album: String,
+    pub genre: String,
+    pub length: i32,
     #[sea_orm(unique)]
     pub path: String,
 }
