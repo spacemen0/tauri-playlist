@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "tauri-app",
+  "productName": "tauri-playlist",
   "version": "0.1.0",
-  "identifier": "com.drugdealer.tauri-app",
+  "identifier": "com.spacemen0.tauri-playlist",
   "build": {
     "beforeDevCommand": "bun run dev",
     "devUrl": "http://localhost:1420",
@@ -12,16 +12,23 @@
   "app": {
     "windows": [
       {
-        "title": "tauri-app",
+        "title": "tauri-playlist",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "devtools": true
       }
     ],
     "security": {
       "capabilities": [
         "main-capability"
       ],
-      "csp": "default-src 'self'; script-src 'self'; style-src 'self';",
+      "csp": {
+        "default-src": "'self' asset: http://asset.localhost",
+        "script-src": "'self'",
+        "style-src": "'self'",
+        "media-src": "'self' asset: http://asset.localhost",
+        "connect-src": "ipc: http://ipc.localhost"
+      },
       "assetProtocol": {
         "enable": true,
         "scope": [
