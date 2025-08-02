@@ -22,6 +22,7 @@ function Playlist() {
   const [searchPagination, setSearchPagination] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
+  const [currentVolume, setCurrentVolume] = useState(0.5);
   const [duration, setDuration] = useState(0);
   const [isSliding, setIsSliding] = useState(false);
   const [jumpPage, setJumpPage] = useState<number | "">(1);
@@ -271,7 +272,10 @@ function Playlist() {
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentTime(parseFloat(e.target.value));
   };
-
+  const handleAudioSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const volume = parseFloat(e.target.value);
+    setCurrentVolume(volume);
+  };
   const handleSliderMouseUp = () => {
     const audio = audioRef.current;
     if (audio) {
@@ -280,6 +284,13 @@ function Playlist() {
       setIsPlaying(true);
     }
     setIsSliding(false);
+  };
+
+  const handleAudioSliderMouseUp = () => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.volume = currentVolume;
+    }
   };
 
   const handleSliderMouseDown = () => {
@@ -395,11 +406,15 @@ function Playlist() {
           track={currentTrack}
           isPlaying={isPlaying}
           currentTime={currentTime}
+          currentVolume={currentVolume}
           duration={duration}
           onPlayPause={togglePlayPause}
           onSliderChange={handleSliderChange}
           onSliderMouseDown={handleSliderMouseDown}
           onSliderMouseUp={handleSliderMouseUp}
+          onAudioSliderMouseDown={handleSliderMouseDown}
+          onAudioSliderMouseUp={handleAudioSliderMouseUp}
+          onAudioSliderChange={handleAudioSliderChange}
         />
       )}
       <audio ref={audioRef} />

@@ -5,22 +5,30 @@ interface AudioPlayerProps {
   track: TrackData;
   isPlaying: boolean;
   currentTime: number;
+  currentVolume: number;
   duration: number;
   onPlayPause: () => void;
   onSliderChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onAudioSliderChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSliderMouseDown: () => void;
+  onAudioSliderMouseDown: () => void;
   onSliderMouseUp: () => void;
+  onAudioSliderMouseUp: () => void;
 }
 
 function AudioPlayer({
   track,
   isPlaying,
   currentTime,
+  currentVolume,
   duration,
   onPlayPause,
   onSliderChange,
+  onAudioSliderChange,
   onSliderMouseDown,
+  onAudioSliderMouseDown,
   onSliderMouseUp,
+  onAudioSliderMouseUp,
 }: AudioPlayerProps) {
   return (
     <div className="mt-2 p-2.5 bg-zinc-700 rounded-md text-center text-lg">
@@ -32,10 +40,6 @@ function AudioPlayer({
           {isPlaying ? "Pause" : "Play"}
         </button>
         <input
-          style={{
-            width: "80%",
-            display: "inline-block",
-          }}
           type="range"
           min={0}
           max={duration}
@@ -44,7 +48,18 @@ function AudioPlayer({
           onChange={onSliderChange}
           onMouseDown={onSliderMouseDown}
           onMouseUp={onSliderMouseUp}
-          className="w-64"
+          className="w-[72%] inline-block"
+        />
+        <input
+          type="range"
+          min={0}
+          max={1}
+          step={0.01}
+          value={currentVolume}
+          onChange={onAudioSliderChange}
+          onMouseDown={onAudioSliderMouseDown}
+          onMouseUp={onAudioSliderMouseUp}
+          className="w-32 inline-block"
         />
         <div>
           {formatTime(currentTime)} / {formatTime(duration)}
