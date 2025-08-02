@@ -24,7 +24,7 @@ function Playlist() {
   const [currentTime, setCurrentTime] = useState(0);
   const [currentVolume, setCurrentVolume] = useState(0.5);
   const [duration, setDuration] = useState(0);
-  const [isSliding, setIsSliding] = useState(false);
+  const [isTimeSliding, setIsTimeSliding] = useState(false);
   const [jumpPage, setJumpPage] = useState<number | "">(1);
   const [progress, setProgress] = useState(0);
   const [progressFile, setProgressFile] = useState("");
@@ -69,7 +69,7 @@ function Playlist() {
     if (!audio) return;
 
     const handleTimeUpdate = () => {
-      if (!isSliding) {
+      if (!isTimeSliding) {
         setCurrentTime(audio.currentTime);
       }
     };
@@ -102,7 +102,7 @@ function Playlist() {
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
       audio.removeEventListener("ended", handleEnded);
     };
-  }, [isSliding, autoPlay, currentTrack, tracks]);
+  }, [isTimeSliding, autoPlay, currentTrack, tracks]);
 
   const fetchNumTracks = async () => {
     try {
@@ -283,7 +283,7 @@ function Playlist() {
       audio.play();
       setIsPlaying(true);
     }
-    setIsSliding(false);
+    setIsTimeSliding(false);
   };
 
   const handleAudioSliderMouseUp = () => {
@@ -291,10 +291,11 @@ function Playlist() {
     if (audio) {
       audio.volume = currentVolume;
     }
+    setIsTimeSliding(false);
   };
 
   const handleSliderMouseDown = () => {
-    setIsSliding(true);
+    setIsTimeSliding(true);
   };
 
   const handleJump = () => {
@@ -412,7 +413,6 @@ function Playlist() {
           onSliderChange={handleSliderChange}
           onSliderMouseDown={handleSliderMouseDown}
           onSliderMouseUp={handleSliderMouseUp}
-          onAudioSliderMouseDown={handleSliderMouseDown}
           onAudioSliderMouseUp={handleAudioSliderMouseUp}
           onAudioSliderChange={handleAudioSliderChange}
         />

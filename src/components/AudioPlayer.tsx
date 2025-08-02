@@ -12,7 +12,6 @@ interface AudioPlayerProps {
   onSliderChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onAudioSliderChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSliderMouseDown: () => void;
-  onAudioSliderMouseDown: () => void;
   onSliderMouseUp: () => void;
   onAudioSliderMouseUp: () => void;
 }
@@ -27,7 +26,6 @@ function AudioPlayer({
   onSliderChange,
   onAudioSliderChange,
   onSliderMouseDown,
-  onAudioSliderMouseDown,
   onSliderMouseUp,
   onAudioSliderMouseUp,
 }: AudioPlayerProps) {
@@ -62,7 +60,6 @@ function AudioPlayer({
               step={0.01}
               value={currentVolume}
               onChange={onAudioSliderChange}
-              onMouseDown={onAudioSliderMouseDown}
               onMouseUp={onAudioSliderMouseUp}
               className="w-4 h-24 absolute bottom-20 mb-2 z-10 "
               style={{
