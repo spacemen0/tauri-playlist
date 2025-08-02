@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { TrackData } from "../types";
 import { formatTime } from "../utils";
 
@@ -30,6 +31,7 @@ function AudioPlayer({
   onSliderMouseUp,
   onAudioSliderMouseUp,
 }: AudioPlayerProps) {
+  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   return (
     <div className="mt-2 p-2.5 bg-zinc-700 rounded-md text-center text-lg">
       <div className="text-xl mt-2 text-white">
@@ -50,17 +52,33 @@ function AudioPlayer({
           onMouseUp={onSliderMouseUp}
           className="w-[72%] inline-block"
         />
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={currentVolume}
-          onChange={onAudioSliderChange}
-          onMouseDown={onAudioSliderMouseDown}
-          onMouseUp={onAudioSliderMouseUp}
-          className="w-32 inline-block"
-        />
+        <div className="flex items-center gap-2 flex-col">
+          {" "}
+          {showVolumeSlider && (
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.01}
+              value={currentVolume}
+              onChange={onAudioSliderChange}
+              onMouseDown={onAudioSliderMouseDown}
+              onMouseUp={onAudioSliderMouseUp}
+              className="w-4 h-24 absolute bottom-20 mb-2 z-10 "
+              style={{
+                writingMode: "vertical-rl",
+                direction: "rtl",
+              }}
+            />
+          )}
+          <button
+            className="w-8"
+            onClick={() => setShowVolumeSlider(!showVolumeSlider)}
+          >
+            🔊
+          </button>
+        </div>
+
         <div>
           {formatTime(currentTime)} / {formatTime(duration)}
         </div>
