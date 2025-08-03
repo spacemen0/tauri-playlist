@@ -150,6 +150,37 @@ function Playlist() {
     }
   };
 
+  const handlePlayNext = async () => {
+    if (!currentTrack) return;
+    if (tracks.indexOf(currentTrack) < tracks.length - 1) {
+      const nextTrackIndex = tracks.indexOf(currentTrack) + 1;
+      setCurrentTrack(tracks[nextTrackIndex]);
+    } else {
+      if (currentPage < totalPages) {
+        setCurrentPage(currentPage + 1);
+        let tracks = await fetchTracks(currentPage + 1);
+        if (tracks.length > 0) {
+          setCurrentTrack(tracks[0]);
+        }
+      }
+    }
+  };
+  const handlePlayPrev = async () => {
+    if (!currentTrack) return;
+    if (tracks.indexOf(currentTrack) > 0) {
+      const prevTrackIndex = tracks.indexOf(currentTrack) - 1;
+      setCurrentTrack(tracks[prevTrackIndex]);
+    } else {
+      if (currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+        let tracks = await fetchTracks(currentPage - 1);
+        if (tracks.length > 0) {
+          setCurrentTrack(tracks[tracks.length - 1]);
+        }
+      }
+    }
+  };
+  // need to handle when track is not currently shown in the list but is in the audio player
   const handleDeleteTrack = async (id: number) => {
     try {
       await invoke("delete_track", { id });
@@ -410,6 +441,8 @@ function Playlist() {
           currentVolume={currentVolume}
           duration={duration}
           onPlayPause={togglePlayPause}
+          onPrev={handlePlayPrev}
+          onNext={handlePlayNext}
           onSliderChange={handleSliderChange}
           onSliderMouseDown={handleSliderMouseDown}
           onSliderMouseUp={handleSliderMouseUp}
