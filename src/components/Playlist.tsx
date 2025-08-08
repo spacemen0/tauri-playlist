@@ -59,7 +59,7 @@ function Playlist() {
     if (currentTrack && audioRef.current) {
       console.log("Playing track:", currentTrack.path);
       audioRef.current.src = convertFileSrc(currentTrack.path);
-      audioRef.current.play();
+      audioRef.current.currentTime = 0;
       setIsPlaying(true);
     }
   }, [currentTrack]);
