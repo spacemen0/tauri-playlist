@@ -165,7 +165,7 @@ function Playlist() {
       setTracksView(tracks);
       setCurrentPage(tracksPage);
     } else {
-      if (tracksPage < totalPages) {
+      if (!searchPagination && tracksPage < totalPages) {
         setTracksPage(tracksPage + 1);
         setCurrentPage(tracksPage + 1);
         let tracks = await fetchTracks(tracksPage + 1);
@@ -185,7 +185,7 @@ function Playlist() {
       setTracksView(tracks);
       setCurrentPage(tracksPage);
     } else {
-      if (tracksPage > 1) {
+      if (!searchPagination && tracksPage > 1) {
         setTracksPage(tracksPage - 1);
         let tracks = await fetchTracks(tracksPage - 1);
         if (tracks.length > 0) {
@@ -292,6 +292,7 @@ function Playlist() {
     const randomPage = Math.ceil(Math.random() * totalPages);
     if (searchPagination) {
       setCurrentPage(randomPage);
+      setTracksPage(randomPage);
       const paginatedTracks = searchResults.slice(
         (randomPage - 1) * tracksPerPage,
         randomPage * tracksPerPage
@@ -377,6 +378,7 @@ function Playlist() {
       setSearchResults(results);
       setSearchPagination(true);
       setCurrentPage(1);
+      setTracksPage(1);
       setNumTracks(results.length);
       setTracks(results.slice(0, tracksPerPage));
       setTracksView(results.slice(0, tracksPerPage));
@@ -436,10 +438,13 @@ function Playlist() {
       )}
       <SearchPanel
         handleSearch={handleSearch}
-        handleBack={() => {
+        handleBack={async () => {
           setCurrentPage(1);
+          setTracksPage(1);
           fetchNumTracks();
-          fetchTracks(1);
+          let tracks = await fetchTracks(1);
+          setTracks(tracks);
+          setTracksView(tracks);
           setSearchPagination(false);
         }}
       />
