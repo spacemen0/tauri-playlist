@@ -14,6 +14,7 @@ import { SearchPanel } from "./SearchPanel";
 
 function Playlist() {
   const [tracks, setTracks] = useState<TrackData[]>([]);
+  const [tracksView, setTracksView] = useState<TrackData[]>([]);
   const [searchResults, setSearchResults] = useState<TrackData[]>([]);
   const [numTracks, setNumTracks] = useState(0);
   const [currentTrack, setCurrentTrack] = useState<TrackData | null>(null);
@@ -21,11 +22,12 @@ function Playlist() {
   const [autoPlay, setAutoPlay] = useState(true);
   const [searchPagination, setSearchPagination] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [tracksPage, setTracksPage] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
   const [currentVolume, setCurrentVolume] = useState(0.5);
   const [duration, setDuration] = useState(0);
   const [isTimeSliding, setIsTimeSliding] = useState(false);
-  const [jumpPage, setJumpPage] = useState<number | "">(1);
+  const [jumpPage, setJumpPage] = useState<number | "">("");
   const [progress, setProgress] = useState(0);
   const [progressFile, setProgressFile] = useState("");
   const [dialog, setDialog] = useState<{
@@ -36,8 +38,13 @@ function Playlist() {
   const tracksPerPage = 10;
 
   useEffect(() => {
-    fetchNumTracks();
-    fetchTracks(1);
+    const initializeData = async () => {
+      fetchNumTracks();
+      setTracks(await fetchTracks(1));
+      setTracksView(await fetchTracks(1));
+    };
+
+    initializeData();
   }, []);
 
   useEffect(() => {
@@ -58,8 +65,9 @@ function Playlist() {
   useEffect(() => {
     if (currentTrack && audioRef.current) {
       console.log("Playing track:", currentTrack.path);
-      audioRef.current.src = convertFileSrc(currentTrack.path);
       audioRef.current.currentTime = 0;
+      audioRef.current.src = convertFileSrc(currentTrack.path);
+      audioRef.current.play();
       setIsPlaying(true);
     }
   }, [currentTrack]);
@@ -123,7 +131,6 @@ function Playlist() {
         page,
         pageSize: tracksPerPage,
       });
-      setTracks(fetchedTracks);
       return fetchedTracks;
     } catch (error) {
       console.error("Error fetching tracks:", error);
@@ -155,12 +162,17 @@ function Playlist() {
     if (tracks.indexOf(currentTrack) < tracks.length - 1) {
       const nextTrackIndex = tracks.indexOf(currentTrack) + 1;
       setCurrentTrack(tracks[nextTrackIndex]);
+      setTracksView(tracks);
+      setCurrentPage(tracksPage);
     } else {
-      if (currentPage < totalPages) {
-        setCurrentPage(currentPage + 1);
-        let tracks = await fetchTracks(currentPage + 1);
+      if (tracksPage < totalPages) {
+        setTracksPage(tracksPage + 1);
+        setCurrentPage(tracksPage + 1);
+        let tracks = await fetchTracks(tracksPage + 1);
         if (tracks.length > 0) {
           setCurrentTrack(tracks[0]);
+          setTracksView(tracks);
+          setTracks(tracks);
         }
       }
     }
@@ -170,12 +182,16 @@ function Playlist() {
     if (tracks.indexOf(currentTrack) > 0) {
       const prevTrackIndex = tracks.indexOf(currentTrack) - 1;
       setCurrentTrack(tracks[prevTrackIndex]);
+      setTracksView(tracks);
+      setCurrentPage(tracksPage);
     } else {
-      if (currentPage > 1) {
-        setCurrentPage(currentPage - 1);
-        let tracks = await fetchTracks(currentPage - 1);
+      if (tracksPage > 1) {
+        setTracksPage(tracksPage - 1);
+        let tracks = await fetchTracks(tracksPage - 1);
         if (tracks.length > 0) {
           setCurrentTrack(tracks[tracks.length - 1]);
+          setTracksView(tracks);
+          setTracks(tracks);
         }
       }
     }
@@ -194,6 +210,7 @@ function Playlist() {
         }
       });
       setTracks([...tracks]);
+      setTracksView([...tracksView]);
       if (
         audioRef.current &&
         audioRef.current.src === convertFileSrc(currentTrack?.path || "")
@@ -230,7 +247,8 @@ function Playlist() {
           await invoke("read_file", { pathStr: path });
         }
 
-        fetchTracks(currentPage);
+        setTracks(await fetchTracks(currentPage));
+        setTracksView(await fetchTracks(currentPage));
       }
     } catch (error) {
       console.error("Error adding track:", error);
@@ -250,13 +268,15 @@ function Playlist() {
 
       if (selected !== null) {
         const summary = await invoke("read_folder", { pathStr: selected });
-        fetchTracks(currentPage);
+        setTracks(await fetchTracks(currentPage));
+        setTracksView(await fetchTracks(currentPage));
         setProgress(0);
         setProgressFile("");
         setDialog({ title: "Import Summary", message: summary as string });
       }
     } catch (error) {
-      fetchTracks(currentPage);
+      setTracks(await fetchTracks(currentPage));
+      setTracksView(await fetchTracks(currentPage));
       setProgress(0);
       setProgressFile("");
       setDialog({
@@ -277,12 +297,16 @@ function Playlist() {
         randomPage * tracksPerPage
       );
       setTracks(paginatedTracks);
+      setTracksView(paginatedTracks);
       const randomIndex = Math.floor(Math.random() * paginatedTracks.length);
       const randomTrack = paginatedTracks[randomIndex];
       setCurrentTrack(randomTrack);
     } else {
+      setTracksPage(randomPage);
       setCurrentPage(randomPage);
       const fetchedTracks = await fetchTracks(randomPage);
+      setTracks(fetchedTracks);
+      setTracksView(fetchedTracks);
       const randomIndex = Math.floor(Math.random() * fetchedTracks.length);
       const randomTrack = fetchedTracks[randomIndex];
       setCurrentTrack(randomTrack);
@@ -355,6 +379,7 @@ function Playlist() {
       setCurrentPage(1);
       setNumTracks(results.length);
       setTracks(results.slice(0, tracksPerPage));
+      setTracksView(results.slice(0, tracksPerPage));
     } catch (error) {
       console.error("Error searching tracks:", error);
       setDialog({ title: "error", message: "Failed to search tracks" });
@@ -363,10 +388,10 @@ function Playlist() {
 
   const totalPages = Math.ceil(numTracks / tracksPerPage);
 
-  const paginate = (pageNumber: number) => {
+  const paginate = async (pageNumber: number) => {
     if (searchPagination) {
       setCurrentPage(pageNumber);
-      setTracks(
+      setTracksView(
         searchResults.slice(
           (pageNumber - 1) * tracksPerPage,
           pageNumber * tracksPerPage
@@ -374,7 +399,7 @@ function Playlist() {
       );
     } else {
       setCurrentPage(pageNumber);
-      fetchTracks(pageNumber);
+      setTracksView(await fetchTracks(pageNumber));
     }
   };
 
@@ -419,7 +444,7 @@ function Playlist() {
         }}
       />
       <TrackList
-        tracks={tracks}
+        tracks={tracksView}
         currentTrackId={currentTrack ? currentTrack.id : -1}
         onPlay={handlePlayTrack}
         onDelete={handleDeleteTrack}
