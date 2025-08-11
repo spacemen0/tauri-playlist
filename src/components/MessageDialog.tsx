@@ -1,5 +1,3 @@
-import React from "react";
-
 interface MessageDialogProps {
   title: string;
   message: string;

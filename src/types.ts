@@ -1,5 +1,3 @@
-
-// Define the type for a single track
 export interface TrackData {
   id: number;
   title: string;
@@ -8,4 +6,11 @@ export interface TrackData {
   genre: string;
   length: number;
   path: string;
+}
+
+export interface PlaylistData {
+  id: number;
+  title: string;
+  description: string;
+  tracks: TrackData[];
 }

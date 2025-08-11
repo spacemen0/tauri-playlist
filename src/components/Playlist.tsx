@@ -1,16 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
+import { path } from "@tauri-apps/api";
 import { open } from "@tauri-apps/plugin-dialog";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
-import { listen } from "@tauri-apps/api/event";
 import { TrackData } from "../types";
 import AudioPlayer from "./AudioPlayer";
-import Pagination from "./Pagination";
-import { path } from "@tauri-apps/api";
 import Controls from "./Controls";
-import TrackList from "./TrackList";
 import MessageDialog from "./MessageDialog";
+import Pagination from "./Pagination";
 import { SearchPanel } from "./SearchPanel";
+import TrackList from "./TrackList";
 
 function Playlist() {
   const [tracks, setTracks] = useState<TrackData[]>([]);
@@ -196,7 +196,7 @@ function Playlist() {
       }
     }
   };
-  // need to handle when track is not currently shown in the list but is in the audio player
+
   const handleDeleteTrack = async (id: number) => {
     try {
       await invoke("delete_track", { id });
